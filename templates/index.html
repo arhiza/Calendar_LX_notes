@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link rel="shortcut icon" href="/static/favicon.ico"/>
+  <title>Stepik Academy + LX Notes</title>
+  <style>
+    body {
+    line-height: 1.8;
+  }
+  h1 {
+    font-size: 3em;
+  }
+
+  .color-1 {
+    color: #aa75f6;
+  }
+  .color-2 {
+    color: #fb9e52;
+  }
+  .color-3 {
+    color: #57b459;
+  }
+  .social-list {
+    margin: 0;
+    padding: .78em 0 0;
+    list-style-type: none;
+  }
+  .social-list > li {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 .7em;
+  }
+  input[type="date"]{
+    max-width: 140px;
+  }
+
+  @media (max-width: 780px) {
+    h1 {
+      font-size: 2em;
+    }
+
+    .form-row {
+      justify-content: flex-start;
+    }
+  }
+
+  .flex {
+    display: flex;
+  }
+  </style>
+</head>
+
+<body class="bg-light">
+  <header class="container mt-3">
+    <nav class="row navbar navbar-expand-lg navbar-light bg-light">
+      <div class="col-3">
+        <a class="navbar-brand" href="/">
+          <img src="static/logo.jpg" alt="LDX" width="85" style="border-radius: 50%;" />
+        </a>
+      </div>
+      <div class="col-9 text-right d-none d-sm-block">
+        <ul class="navbar-nav justify-content-end flex-row">
+          <li class="nav-item active px-4">
+            <a class="nav-link" href="/#about">О проекте</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-dark" href="/#add">Добавить событие</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main class="mt-5">
+    <section class="container pt-3">
+      <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+          <h1 class="text-center font-weight-bold pb-5 px-2">Полезные события для всех, кто создает образование</h1>
+        </div>
+      </div>
+    {% if session.get("message") %}
+      <div class="alert alert-warning">{{ session.get("message") }}</div>
+      {% if session.pop("message") %}{% endif %}
+    {% endif %}
+      <div class="row pb-5 mb-3">
+        <div class="col-11 mx-auto rounded py-2 px-3" style="background-color: #B8B8B8;">
+          <a name="filter"></a>
+          <form method="POST" action="/#filter">
+          <div class="form-row flex-lg-nowrap align-items-center justify-content-between">
+            <div class="col-12 col-md-auto my-1">
+              <input type="date" name="date_from" value="{{ date_from }}" min="{{ min_date }}" max="{{ max_date }}">
+              <span class="font-weight-bold px-2">-</span>
+              <input type="date" name="date_to" value="{{ date_to }}" min="{{ min_date }}" max="{{ max_date }}">
+            </div>
+            <div class="col-12 col-md-auto px-lg-3 my-1">
+              <div class="row">
+                <div class="col-6">
+                  <select class="custom-select mr-sm-2" name="opt_tag" multiple>
+                    {% for opt in options_tags %}
+                    <option value="{{ opt }}" {% if opt in opt_tag %}selected{% endif%}>{{ opt }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <select class="custom-select mr-sm-2" name="opt_location">
+                    {% for opt in options_locations %}
+                    <option value="{{ opt }}" {% if opt == opt_location %}selected{% endif%}>{{ opt }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-auto pr-3 my-1">
+              <div class="form-check d-flex align-items-center">
+                <input class="form-check-input mt-0" type="checkbox" id="autoSizingCheck2" name="isfree" {% if isfree %}checked{% endif %}>
+                <label class="form-check-label font-weight-bold" for="autoSizingCheck2">
+                  Только бесплатно
+                </label>
+              </div>
+            </div>
+            <div class="col-auto my-1">
+              <button type="submit" class="btn btn-dark">Показать</button>
+            </div>
+          </div>
+          </form>
+        </div>
+      </div>
+    </section>
+    <section style="background-color: #ffffff;">
+      <div class="container pt-5 pb-4">{% set COUNT_TO_SHOW = 75 %}
+        {% if meetings|count > 0 %}
+        <div class="row flex">
+          {% for meeting in meetings[0:COUNT_TO_SHOW] %}
+          <div class="col-12 col-md-4 flex">
+            <div class="card mb-4 flex">
+              <div class="pt-3 px-3" style="flex-grow: 1;">
+                <p class="m-0 p-0" style="font-size: 0.85em;"><b>с {{ meeting.startdate_short }}</b>{% if meeting.allday == "FALSE" %} {{ meeting.starttime }}{% endif %}</p>
+                <p>
+                  {% if meeting.type in ["мастер-класс", "митап"] %}
+                  <span class="badge badge-pill badge-success">{{ meeting.type }}</span>
+                  {% elif meeting.type in ["вебинар", "тренинг"] %}
+                  <span class="badge badge-pill badge-primary">{{ meeting.type }}</span>
+                  {% else %}
+                  <span class="badge badge-pill badge-dark">{{ meeting.type }}</span>
+                  {% endif %}
+                  {% if meeting.location == "Онлайн" %}
+                  <span class="badge badge-pill badge-success">Онлайн</span>
+                  {% else %}
+                  <span class="badge badge-pill badge-primary">{{ meeting.location }}</span>
+                  {% endif %}
+                </p>
+                <p class="h5 font-weight-bold">{{ meeting.subject }}</p>
+                <p class="my-2">
+                  <img src="static/icon.png" alt="" width="20">
+                  <span>{{ meeting.company }}</span>
+                </p>
+                <p class="p-0 m-0" style="line-height: 1.5;">{{ meeting.description|truncate(100) }}</p>
+              </div>
+              <hr class="mb-2">
+              <div class="row px-3 pb-2" style="font-size: 0.85em;">
+                <div class="col-4">
+                {% if meeting.isfree == "1" %}
+                  <span class="color-3"><b>Бесплатно</b></span>
+                {% elif meeting.hasdiscount == "1" %}
+                  <span class="color-2"><b>Есть скидка</b></span>
+                {% else %}
+                  <span class="color-1"><b>Платно</b></span>
+                {% endif %}
+                </div>
+                <div class="col-8 text-right">
+                  <a href="{{ meeting.link }}" class="pr-3" target="_blank">Подробнее</a>
+                  <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ meeting.subject }}&dates={{ meeting.dates_to_calendar }}&ctz=Europe/Moscow&details={{ meeting.description|replace('&', '_')|replace('%', '_')|replace('#', '_') }} Подробнее: {{ meeting.link }}&location={{ meeting.location }}" target="_blank">В календарь</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}{% if meetings|count > COUNT_TO_SHOW %}
+        <div class="row">
+          <div class="col-12 col-md-6 offset-md-3 my-3">
+            <p class="h5 text-center font-weight-bold">
+              Показаны первые {{ COUNT_TO_SHOW }} событий из&nbsp;{{ meetings|count }}.<br>Если не нашлось ничего подходящего, уточните&nbsp;запрос.
+            </p>
+          </div>
+        </div>
+        {% endif %}
+        {% if meetings|count == 0 %}
+        <div class="row">
+          <div class="col-12 col-md-6 offset-md-3 my-3">
+            <p class="h5 text-center font-weight-bold">
+              Ни одного события не нашлось. Попробуйте уточнить запрос.
+            </p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section><a name="about"></a>
+    <section class="container">
+      <div class="row mt-5 pt-3 px-md-4">
+        <div class="col-12 col-md-6 pr-5">
+          <h2 class="h1 pb-2 font-weight-bold">О&nbsp;проекте</h2>
+          <p>В мире образования постоянно что-то происходит&nbsp;&mdash; открываются школы, развиваются технологии, приходят новые люди. Раньше новичку было сложно сориентироваться, куда пойти учиться и где найти единомышленников, пока в&nbsp;октябре 2017 года не появился анонс событий. Сначала это был пост в&nbsp;канале LX notes, потом гугл-календарь с анонсом в Medium, который выходил каждый понедельник почти 3&nbsp;года. В&nbsp;2020 году мы решили сделать так, чтобы доступ к&nbsp;календарю был ещё более удобным. Теперь у&nbsp;нас есть поиск по&nbsp;ключевым словам и периоду времени, можно даже добавить мероприятия себе в календарь. Мы по-прежнему следим за 50+ ресурсами и тщательно отбираем события и договариваемся о скидках. Наша миссия — сделать доступным развитие каждого, кто интересуется образованием. И поэтому этот календарь всегда будет независимым ресурсом, где можно найти только полезное обучение.<br>
+Добро пожаловать!<br><br>
+
+Евгения Ращупкина<br>
+Автор проекта</p>
+        </div>
+        <div class="col-12 col-md-6">
+          <img src="static/person.jpg" alt="" class="img-fluid" width="490">
+        </div>
+      </div>
+    </section><a name="add"></a>
+    <section class="row py-5 mt-5" style="background-color: #ffffff;">
+      <div class="col-12 col-md-6 offset-md-3 text-center px-5 pt-3 mb-4">
+        <h2 class="h1 pb-4 font-weight-bold">Добавить событие</h2>
+        <p>Заполните форму, и&nbsp;мы&nbsp;добавим ваше событие в&nbsp;календарь. Обратите внимание, что мы&nbsp;размещаем только мероприятия для тех, кто работает в образовании&nbsp;&mdash; руководителей проектов, методистов, продюсеров, и так далее. Мы оставляем за собой право отказать в&nbsp;размещении, если ваше мероприятие не&nbsp;соответствует тематике.</p>
+        <a href="https://forms.gle/E2KDURiVyab8dYsn8" class="btn btn-dark py-3 px-4 mt-3" target="_blank">Хочу добавить событие</a>
+      </div>
+    </section>
+  </main>
+  <footer class="container">
+    <div class="row py-5">
+      <div class="col-12 col-md-10 offset-md-1">
+        <p>Если у вас есть вопросы или предложения, напишите нам в телеграм <a href="//t.me/LXnotes_bot" class="text-dark" style="text-decoration: underline;" target="_blank">@LXnotes_bot</a> или заполните <a href="https://forms.gle/s8X4ihbt4mjQZKHg7" class="text-dark" style="text-decoration: underline;"  target="_blank">форму</a></p>
+      </div>
+      <div class="col-12 col-md-6 offset-md-1">
+        <p><b>Следите за&nbsp;обновлениями</b> на&nbsp;наших страницах в&nbsp;соцсетях, <br>чтобы всегда быть в&nbsp;курсе событий в&nbsp;образовании</p>
+      </div>
+      <div class="col-12 col-md-4">
+        <ul class="social-list">
+          <li>
+            <a href="https://www.facebook.com/lxnotes" target="_blank">
+              <img src="static/icon-fb.svg" width="42">
+            </a>
+          </li>
+          <li>
+            <a href="//t.me/lxnotes" target="_blank">
+              <img src="static/icon-telegram.svg" width="42">
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+</body>
+
+</html>
