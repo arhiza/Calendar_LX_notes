@@ -55,9 +55,13 @@ def render_main():
         now = datetime.now()
         monday = now - timedelta(days=now.weekday())
         date_from = monday.strftime("%Y-%m-%d") # даты с понедельника по воскресенье текущей недели
+        if date_from > max_date: # если данные совсем старые, покажем хотя бы последний имеющийся день
+            date_from = max_date
         if date_from < min_date:
             min_date = date_from
         date_to = (monday + timedelta(days=7)).strftime("%Y-%m-%d")
+        if date_to < min_date:
+            date_to = min_date
         if date_to > max_date:
             max_date = date_to
         opt_location = options_locations[0] # везде
