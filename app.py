@@ -7,7 +7,7 @@ from update_data import data_to_cash
 
 
 def load_data():
-    with open(f"cash.json", "r") as f:
+    with open(f"json/cash.json", "r") as f:
         res = json.load(f)
     return res
 

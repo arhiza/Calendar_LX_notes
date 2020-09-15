@@ -38,7 +38,7 @@ def data_to_cash(API_TOKEN):
     dates = {meeting["startdate"] for meeting in meetings}
 
     cash_data = {"min_date": min(dates), "max_date": max(dates), "meetings": meetings}
-    with open("cash.json", "w") as f:
+    with open("json/cash.json", "w") as f:
         json.dump(cash_data, f)
     
     return cash_data
