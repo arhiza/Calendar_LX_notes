@@ -54,12 +54,11 @@ def render_main():
     tags = []
     for meeting in meetings:
         tags.extend(meeting["tags"])
-    options_tags = [] + sorted(set(tags)) # "На любую тему"
+    options_tags = [] + sorted(set(tags))
 
     if request.method == "GET": # изначальные фильтры
         now = datetime.now()
         monday = now - timedelta(days=now.weekday())
-        #print("monday", monday)
         date_from = monday.strftime("%Y-%m-%d") # даты с понедельника по воскресенье текущей недели
         if date_from > max_date: # если данные совсем старые, покажем хотя бы последний имеющийся день
             date_from = max_date
@@ -71,7 +70,7 @@ def render_main():
         if date_to > max_date:
             max_date = date_to
         opt_location = options_locations[0] # везде
-        opt_tag = [] #options_tags[0]] # на любую тему
+        opt_tag = [] # на любую тему
         isfree = None # непоставленная галочка бесплатности
     else:
         date_from = date_hum2com(request.form.get("date_from"))
@@ -84,16 +83,12 @@ def render_main():
         opt_tag = request.form.getlist("opt_tag") # мультиселект
         isfree = request.form.get("isfree")
 
-    #print("min_date", min_date)
-    #print("date_from", date_from)
-    #print("date_to", date_to)
-    #print("max_date", max_date)
-
     filtered_meetings = []
     for meeting in meetings:
         if check_filters(meeting, date_from, date_to, opt_location, options_locations, 
                          isfree, opt_tag, options_tags):
             filtered_meetings.append(meeting)
+    filtered_meetings.sort(key=lambda event: event["startdate"])
 
     return render_template("index.html", meetings=filtered_meetings, min_date=min_date, \
                            max_date=max_date, date_from=date_com2hum(date_from), \
@@ -104,5 +99,5 @@ def render_main():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()# debug=True)
 
