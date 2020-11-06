@@ -39,8 +39,11 @@ def check_filters(event, date_from, date_to, opt_location, options_locations, is
 @app.route("/<secret>")
 def update_data(secret):
     if secret == SECRET_CODE and API_TOKEN:
-        data_to_cash(API_TOKEN)
-        session["message"] = "Данные о мероприятиях обновлены."
+        errors = data_to_cash(API_TOKEN)
+        mes = "Данные о мероприятиях обновлены."
+        if len(errors)>0:
+            mes = mes + " Не распознались данные: {}.".format("; ".join(errors))
+        session["message"] = mes
     return redirect("/") # редирект, чтоб при обновлении страницы данные из гугль-таблицы не запрашивались еще раз
 
 @app.route("/", methods=["GET", "POST"])
